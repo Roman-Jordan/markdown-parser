@@ -23,63 +23,52 @@ class MarkDownParser
     public function __construct($string)
     {
         if (is_string($string)) {
-            $this->string = utf8_encode($string);
-            $this->normalize_eol();
-            $this->string_to_array();
+            // $this->string = utf8_encode($string);
+            $string = $this->normalize_eol($string);
+            $this->string = $this->string_to_array($string);
         }
+        print_r($this->string);
     }
 
-    private function normalize_eol()
+    private function normalize_eol($string)
     {
-        $this->string = str_replace(["\r\n", "\r"], "\n", $this->string);
+        return str_replace(["\r\n", "\r"], "\n", $string);
     }
 
-    /**
-     * @method countLines
-     * count the number of lines relative to the spec
-     * https://github.github.com/gfm/#characters-and-lines
-     * A line is a sequence of zero or more characters
-     * other than newline (U+000A) or carriage return 
-     * (U+000D), followed by a line ending or by the end of file.
-     */
-    public function countLines()
-    {  
-        return count($this->string);
-        
-    }
-    private function string_to_array()
+    private function string_to_array($string)
     {
-        $this->string = explode("\n", $this->string);
+        return explode("\n", $string);
     }
 
-    private function rule_headings()
+    private function rule_headings($string)
     {
-    }
-
-    private function scan_string()
-    {
-        $unicode = json_decode("\u00fc\u00be\u008c\u00a3\u00a4\u00bc");
+        return '<h1>' . $string . '<h1>';
     }
 
     public function toHTML()
     {
+        print_r($this->string);
         //Auto Load Rules
+        $i = 0;
         foreach (get_class_methods($this) as $rule) {
-            if (strpos($rule, 'rule_') !== false) {
-                $this->$rule();
+            if (!isset($this->error)) {
+                if (strpos($rule, 'rule_') !== false) {
+                    print_r ($this->string);
+                    $i++;
+                    foreach ($this->string as $subString) { 
+                        //This should be done in parallel 
+                        $this->string[$subString] = $this->$rule($subString);
+                        echo $subString;
+                    }
+                } 
+
             }
         };
-        //Errors Hault Production.
-        if (!isset($this->error)) {
-            $ord =  json_decode("\u00fc\u00be\u008c\u00a3\u00a4\u00bc");
-            echo $ord;
-            print_r($this->string);
-        } else {
-            return print_r($this->error);
-        }
+
+        $this->string = implode("\n", $this->string);
+        return $this->string;
     }
 }
 
 $md = new MarkDownParser($readme);
-
-echo $md->countLines();
+echo $md->toHTML();
