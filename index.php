@@ -27,7 +27,6 @@ class MarkDownParser
             $string = $this->normalize_eol($string);
             $this->string = $this->string_to_array($string);
         }
-        print_r($this->string);
     }
 
     private function normalize_eol($string)
@@ -42,26 +41,29 @@ class MarkDownParser
 
     private function rule_headings($string)
     {
-        return '<h1>' . $string . '<h1>';
+        if(strpos($string,'#') === 0){
+          
+            $hash = explode(' ', $string, 2);
+            $count = substr_count($hash[0], '#');
+            if($count === strlen($hash[0])){
+                return '<h' .$count . '>' . $hash[1] . '</h' .$count . '>';
+            }
+            return $string;
+        };
+        return $string;
     }
 
     public function toHTML()
     {
-        print_r($this->string);
-        //Auto Load Rules
-        $i = 0;
         foreach (get_class_methods($this) as $rule) {
             if (!isset($this->error)) {
                 if (strpos($rule, 'rule_') !== false) {
-                    print_r ($this->string);
-                    $i++;
                     foreach ($this->string as $subString) { 
                         //This should be done in parallel 
                         $this->string[$subString] = $this->$rule($subString);
                         echo $subString;
                     }
                 } 
-
             }
         };
 

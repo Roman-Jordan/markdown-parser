@@ -1,19 +1,9 @@
 # Markdown Parser
-Parses markdown files and outputs them to HTML following GFM specifications
+A simple self dependent Mark Down parser that conforms to GFM or Git Hub Flavored Mark Down
 
-## Client
-The clinet side version of Markdown Parser allows you to send of Mark down 
+## Getting Started
+Depending on what language you are using and if you would like this to be handeled clinet side or server side, you can simply add your desired language to your project. Want to add your own rule? You can simply extend the class or add your rule to the parent class. All rules should be prefixed with `rule_`, this allows them to auto load. 
 
-## PHP
-As this is a single class and has no dependencies, it has been writen in such a way where all one has to do is add the class to their project and include it in one of ones php files. This class autoloads anything all methods with the prefix of `rule_`; that being said, if you are exteninding this class with aditional rules, for them to auto load, you will need to add the prefix of `rule_` to your method.
+### Available Rules
 
-```php
-<?php
-include './markdown-parser.php';
-$readme = file_getContents('./READ.me');//Returns as a string. 
-
-$md = new MarkDownParser($readme);
-
-echo $md->toHTML();
-
-```
+1. ```rule_headings:``` If a line starts with `#` and has a space before the proceeding text, the system will count all of your hashtags and replacing them with the appropriate `<h[1-#]>` tag and adding the same tag to the end of that line.
