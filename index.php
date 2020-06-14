@@ -4,21 +4,7 @@ $readme = file_get_contents('./README.md');
 class MarkDownParser
 {
     protected $string,
-        $error,
-        //Allowed Chars ASCII Punctuation
-        $chars = array(
-            // (U+0021–2F),
-            '!', '"', '#', '$', '%', '&',
-            '\'', '(', ')', '*', '+', ',',
-            '-', '.', '/',
-            ':', ';', '<',
-            //(U+003A–0040)
-            '=', '>', '?', '@',
-            //(U+005B–0060)
-            '[', '\\', ']', '^', '_', '`',
-            // (U+007B–007E)              
-            '{', '|', '}', '~'
-        );
+              $error;
 
     public function __construct($string)
     {
@@ -41,12 +27,12 @@ class MarkDownParser
 
     private function rule_headings($string)
     {
-        if(strpos($string,'#') === 0){
-          
+        if (strpos($string, '#') === 0) {
+
             $hash = explode(' ', $string, 2);
             $count = substr_count($hash[0], '#');
-            if($count === strlen($hash[0])){
-                return '<h' .$count . '>' . $hash[1] . '</h' .$count . '>';
+            if ($count === strlen($hash[0])) {
+                return '<h' . $count . '>' . $hash[1] . '</h' . $count . '>';
             }
             return $string;
         };
@@ -58,12 +44,12 @@ class MarkDownParser
         foreach (get_class_methods($this) as $rule) {
             if (!isset($this->error)) {
                 if (strpos($rule, 'rule_') !== false) {
-                    foreach ($this->string as $subString) { 
+                    foreach ($this->string as $subString) {
                         //This should be done in parallel 
                         $this->string[$subString] = $this->$rule($subString);
                         echo $subString;
                     }
-                } 
+                }
             }
         };
 
