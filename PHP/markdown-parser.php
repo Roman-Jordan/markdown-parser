@@ -2,12 +2,13 @@
 class MarkDownParser
 {
     protected $string,
-              $error;
+        $newString = array(),
+        $error;
 
     public function __construct($string)
     {
         if (is_string($string)) {
-            $string = $this->normalize_eol($string);
+            $string = htmlentities($this->normalize_eol($string));
             $this->string = $this->string_to_array($string);
         }
     }
@@ -22,10 +23,9 @@ class MarkDownParser
         return explode("\n", $string);
     }
 
-    private function rule_headings($string)
+    private function rule_atxheadings($string)
     {
         if (strpos($string, '#') === 0) {
-
             $hash = explode(' ', $string, 2);
             $count = substr_count($hash[0], '#');
             if ($count === strlen($hash[0])) {
@@ -36,21 +36,36 @@ class MarkDownParser
         return $string;
     }
 
+    private function rule_Tabs($string, $index)
+    {
+        if (strpos($string, '   ') === 0) {
+            if (strpos($this->string[$index - 1], '   ') !== 0) {
+                $string = '<pre>' . $string;
+            }
+            if (strpos($this->string[$index + 1], '   ') !== 0) {
+                $string = $string . '</pre>';
+            }
+        };
+        return $string;
+    }
+
+
     public function toHTML()
     {
-        foreach (get_class_methods($this) as $rule) {
+        foreach ($this->string as $key => $subString) {
             if (!isset($this->error)) {
-                if (strpos($rule, 'rule_') !== false) {
-                    foreach ($this->string as $subString) {
-                        //This should be done in parallel 
-                        $this->string[$subString] = $this->$rule($subString);
-                        echo $subString;
+                foreach (get_class_methods($this) as $rule) {
+                    if (strpos($rule, 'rule_') !== false) {
+                        if(isset($this->newString[$key])){
+                            $this->newString[$key] = $this->$rule($this->newString[$key], $key);
+                        }else{
+                            $this->newString[$key] = $this->$rule($subString, $key);
+                        }
                     }
                 }
             }
         };
-
-        $this->string = implode("\n", $this->string);
-        return $this->string;
+        $this->newString = implode("\n", $this->newString);
+        return $this->newString;
     }
 }
